@@ -46,7 +46,7 @@ const userController = {
     try {
       const { email, password, role } = req.body;
       const result = role === "admin" 
-        ? await UserService.checkAdmin(email, password) 
+        ? await UserService.checkHost(email, password) 
         : await UserService.checkUser(email, password);
 
       if (result.success) {

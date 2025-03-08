@@ -67,18 +67,45 @@ class UserService {
     }
   }
 
-  async checkHost(email) {
+  async checkHost(email, password) {
     try {
+      console.log("Checking host status...");
+      console.log("email:", email);
+      console.log("password:", password);
+      // Fetch user with the given email and role = 'admin'
       const [rows] = await this.pool.query(
-        `SELECT * FROM ${this.tableName} WHERE email = ? AND admin = 1`,
+        `SELECT * FROM ${this.tableName} WHERE email = ? AND role = 'admin'`,
         [email]
       );
-      return rows.length > 0;
+  
+      // Check if an admin user exists
+      if (rows.length === 0) {
+        return { success: false, message: "Admin not found" };
+      }
+  
+      const admin = rows[0];
+      console.log("admin:", admin); 
+  
+      // Ensure password is present in the database
+      if (!admin.password_hash) {
+        return { success: false, message: "Password not set for this admin" };
+      }
+      
+      console.log("password hash:", admin.password_hash);
+      console.log("password:", password);
+      // Compare the entered password with the stored hash
+      const isMatch = await compare(password, admin.password_hash);
+      if (!isMatch) {
+        return { success: false, message: "Incorrect password" };
+      }
+  
+      return { success: true, message: "Login successful", admin };
     } catch (error) {
       console.error("Error checking host status:", error);
-      throw error;
+      return { success: false, message: "Error checking admin credentials", error };
     }
   }
+  
 
   async create(user) {
     try {
