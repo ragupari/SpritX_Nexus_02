@@ -173,24 +173,51 @@ async checkHost(email, password) {
 
   async checkUser(email, password) {
     try {
-      const [rows] = await this.pool.query(
-        `SELECT * FROM ${this.tableName} WHERE email = ? AND role = 'user'`,
-        [email]
-      );
+        console.log("Checking user status...");
+        console.log("Email:", email);
 
-      if (rows.length === 0) {
-        return { success: false, message: "❌ Invalid user credentials!" };
-      }
+        // Fetch user by email and role
+        const [rows] = await this.pool.query(
+            `SELECT * FROM ${this.tableName} WHERE email = ? AND role = 'user'`,
+            [email]
+        );
 
-      const match = await bcrypt.compare(password, rows[0].password);
-      if (match) return { success: true, user: rows[0] };
+        // Check if a user exists
+        if (rows.length === 0) {
+            return { success: false, message: "❌ Invalid user credentials!" };
+        }
 
-      return { success: false, message: "❌ Invalid user credentials!" };
+        const user = rows[0];
+        console.log("User found:", user);
+
+        // Ensure password is present in the database
+        if (!user.password) {
+            return { success: false, message: "❌ Password not set for this user!" };
+        }
+
+        console.log("Stored password hash:", user.password);
+
+        // Compare the entered password with the stored hashed password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return { success: false, message: "❌ Invalid user credentials!" };
+        }
+
+        // Generate JWT token upon successful authentication
+        const token = jwt.sign(
+            { email: user.email, role: user.role },
+            jwtSecret,  // Make sure jwtSecret is properly defined
+            { expiresIn: "1h" }
+        );
+
+        return { success: true, message: "✅ Login successful!", user, token };
+
     } catch (error) {
-      console.error("Error in checkUser:", error);
-      return { success: false, message: "❌ Server error while checking user!" };
+        console.error("Error in checkUser:", error);
+        return { success: false, message: "❌ Server error while checking user!", error };
     }
-  }
+}
+
 }
 
 export default new UserService();
