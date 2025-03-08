@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import userRouter from './src/routes/userRoutes.js'; // Import your user routes
+import playerRouter from './src/routes/playerRoutes.js'
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.json()); // Middleware for JSON parsing
 // Set up the routes
 app.use('/api/users', userRouter);
  // Use your user routes for /api prefix
+ app.use('/api/players', playerRouter);
 
 // Test route to ensure the server is receiving requests
 app.get('/test', (req, res) => {
