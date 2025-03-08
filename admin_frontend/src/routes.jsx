@@ -1,5 +1,6 @@
 import {
   HomeIcon,
+  TrophyIcon,
   UserCircleIcon,
   TableCellsIcon,
   InformationCircleIcon,
@@ -23,6 +24,12 @@ export const routes = [
         name: "dashboard",
         path: "/home",
         element: <Home />,
+      },
+      {
+        icon: <TrophyIcon {...icon} />,
+        name: "players",
+        path: "/players",
+        element: <Players />,
       },
       {
         icon: <UserCircleIcon {...icon} />,
