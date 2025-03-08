@@ -14,9 +14,11 @@ export function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent form from refreshing page
+    e.preventDefault();
+    // setIsSubmitting(true);  // Start submitting
 
     try {
       const response = await fetch("http://localhost:3000/api/users/login", {
@@ -27,24 +29,27 @@ export function SignIn() {
         body: JSON.stringify({
           email,
           password,
-          role: "admin", // Hardcoded for now, you can make it dynamic
+          role: "admin",
         }),
       });
 
       const data = await response.json();
 
-      if (response.ok) {
-        console.log("Login successful:", data);
-        navigate("/dashboard"); // Redirect to dashboard or home page
+      if (response.ok && data.token) {
+        localStorage.setItem("authToken", data.token);
+        navigate("/dashboard");
       } else {
         setError(data.message || "Invalid credentials");
       }
     } catch (err) {
       console.error("Login error:", err);
       setError("Something went wrong. Try again.");
+    } finally {
+      setIsSubmitting(false);  // Reset submitting state
     }
   };
-  
+
+
   return (
     <section className="m-8 flex gap-4">
       <div className="w-full lg:w-3/5 mt-24">
@@ -101,12 +106,14 @@ export function SignIn() {
             containerProps={{ className: "-ml-2.5" }}
           />
           {error && <Typography color="red" className="text-center">{error}</Typography>}
-          <Button 
-            type="submit" 
-            className="mt-6" 
+          <Button
+            type="submit"
+            className="mt-6"
             fullWidth
-            onClick={handleLogin}>
-            Sign In
+            onClick={handleLogin}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Signing In..." : "Sign In"}
           </Button>
 
           <div className="flex items-center justify-between gap-2 mt-6">
