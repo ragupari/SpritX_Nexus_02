@@ -1,0 +1,34 @@
+/* Style for the navigation container */
+nav {
+    background: #333; /* Dark background for the navbar */
+    color: #fff;
+    padding: 10px 20px; /* Padding around the links */
+    text-align: center;
+}
+
+/* Remove list styles and padding */
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex; /* Aligns links horizontally */
+    justify-content: center; /* Center links horizontally */
+}
+
+nav ul li {
+    margin: 0 10px; /* Space between links */
+}
+
+/* Style for each link */
+nav ul li a {
+    text-decoration: none;
+    color: white; /* White text color */
+    padding: 10px 15px; /* Padding around the text */
+    border-radius: 5px; /* Rounded corners for the links */
+    transition: background-color 0.3s; /* Smooth transition for background color */
+}
+
+/* Hover effect for links */
+nav ul li a:hover {
+    background-color: #555; /* Darker background on hover */
+}
