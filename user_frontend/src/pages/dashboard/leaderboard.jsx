@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardHeader,
@@ -5,67 +6,42 @@ import {
   Typography,
 } from "@material-tailwind/react";
 
-// Replace authorsTableData with the new users JSON array
-const usersTableData = [
-  {
-    username: "User One",
-    points: 1200,
-    rank: 1,
-  },
-  {
-    username: "User Two",
-    points: 1100,
-    rank: 2,
-  },
-  {
-    username: "User Three",
-    points: 1000,
-    rank: 3,
-  },
-  {
-    username: "User Four",
-    points: 900,
-    rank: 4,
-  },
-  {
-    username: "User Five",
-    points: 850,
-    rank: 5,
-  },
-  {
-    username: "User Six",
-    points: 800,
-    rank: 6,
-  },
-  {
-    username: "User Seven",
-    points: 750,
-    rank: 7,
-  },
-  {
-    username: "User Eight",
-    points: 700,
-    rank: 8,
-  },
-  {
-    username: "User Nine",
-    points: 650,
-    rank: 9,
-  },
-  {
-    username: "User Ten",
-    points: 600,
-    rank: 10,
-  },
-];
-
 // Replace this with the current username (can be passed as prop or state)
 const currentUsername = "User Three"; // For example, this can be dynamically set
 
-// Find the current user object based on currentUsername
-const currentUser = usersTableData.find(user => user.username === currentUsername);
-
 export function LeaderBoard() {
+  const [usersTableData, setUsersTableData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Fetch user data from the API
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('/api/team');
+        const data = await response.json();
+        setUsersTableData(data);  // Assuming the API returns the correct array structure
+      } catch (error) {
+        setError('Failed to load data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  // Find the current user object based on currentUsername
+  const currentUser = usersTableData.find(user => user.username === currentUsername);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
       <Card>

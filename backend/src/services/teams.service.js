@@ -38,6 +38,21 @@ class TeamService {
       throw new Error("Error fetching team players by user ID: " + err.stack);
     }
   }
+  async getBudget(userId) {
+    try {
+      const query = `
+        SELECT cash
+        FROM users
+        WHERE id = ?
+      `;
+      const [results] = await this.pool.query(query, [userId]);
+
+      return results; // Return all players in the user's team
+    } catch (err) {
+      console.error("Error fetching team players by user ID:", err.stack);
+      throw new Error("Error fetching team players by user ID: " + err.stack);
+    }
+  }
 
   // Add a player to a team
   async addPlayerToTeam(userId, playerId) {
@@ -69,9 +84,6 @@ class TeamService {
       // Step 3: Check if the user has enough points
       if (userCash < playerValue) {
         throw new Error("Insufficient points to add this player.");
-      }
-      if (userCount >= 11) {
-        throw new Error("Team limit reached.");
       }
   
       // Step 4: Deduct the player's points from the user's points
@@ -165,44 +177,6 @@ class TeamService {
       throw new Error("Error removing player: " + err.stack);
     } finally {
       connection.release(); // Release the connection
-    }
-  }
-
-  async getTotalPoints(userId) {
-    try {
-      const query = `
-        SELECT p.* 
-        FROM players p
-        JOIN ${this.tableName} t ON p.player_id = t.player_id
-        WHERE t.user_id = ?
-      `;
-      const [results] = await this.pool.query(query, [userId]);
-      console.log("Team players fetched successfully.");
-      return results; // Return all players in the user's team
-    } catch (err) {
-      console.error("Error fetching Total team points by user ID:", err.stack);
-      throw new Error("Error fetching team players by user ID: " + err.stack);
-    }
-  }
-  async getAllLeaderboardTeams() {
-    try {
-      // Fetch users who have exactly 11 players in their team
-      const query = `
-        SELECT u.id AS user_id, u.name AS user_name, SUM(p.Value_in_Rupees) AS total_points
-        FROM users u
-        JOIN ${this.tableName} t ON u.id = t.user_id
-        JOIN players p ON t.player_id = p.Player_ID
-        WHERE u.Count = 11
-        GROUP BY u.id, u.name
-        ORDER BY total_points DESC
-      `;
-      
-      const [results] = await this.pool.query(query);
-      console.log("Leaderboard teams fetched successfully.");
-      return results;
-    } catch (err) {
-      console.error("Error fetching leaderboard teams:", err.stack);
-      throw new Error("Error fetching leaderboard teams: " + err.stack);
     }
   }
 }

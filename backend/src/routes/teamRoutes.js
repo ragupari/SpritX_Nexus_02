@@ -9,6 +9,7 @@ router.get("/:userId/players", teamController.getPlayersByTeamId); // Get all pl
 router.post("/add-player", teamController.addPlayerToTeam); // Add a player to a team
 router.delete("/remove-player", teamController.removePlayerFromTeam); // Remove a player from a team
 router.get("/leaderboard", teamController.getAllLeaderboardTeams); // Get all teams for the leaderboard
+router.get("/getbudget", teamController.getBudget); // Get all teams for the leaderboard
 
 // Export the router
 export default router;

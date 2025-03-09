@@ -12,6 +12,7 @@ userRouter.use((req, res, next) => {
 // Link routes to controller methods
 userRouter.get("/", userController.getAllUsers); // Get all users
 userRouter.get("/:id", userController.getUserById); // Get user by ID
+userRouter.post("/tokenauth", userController.tokenAuth); // Get user by ID
 userRouter.post("/", userController.createUser); // Create new user
 userRouter.post("/login", userController.login); // Login user
 userRouter.delete("/:id", userController.deleteUser); // Delete user

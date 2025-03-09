@@ -1,27 +1,23 @@
-import axios from 'axios';
-
-async function login() {
+export const fetchId = async () => {
   try {
-    const res = await axios.get('/tokenauth', {
+    const response = await fetch("http://localhost:3000/api/users/tokenauth", {
+      method: "POST",
       headers: {
-        'x-access-token': localStorage.getItem('token')
-      }
+        "Content-Type": "application/json",
+        "x-access-token": localStorage.getItem("authToken"),
+      },
+      body: JSON.stringify({}), // Ensure the API requires a body
     });
-    console.log(res.data.username);
-    console.log(res.data.success);
-    return res.data; // Return the full data object
-  } catch (err) {
-    console.log(err);
-    return { success: false }; // Return a consistent shape
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Fetched Data:", data);
+    return data.id;
+  } catch (error) {
+    console.error("Error fetching player data:", error);
+    return null;
   }
-}
-
-function logout() {
-  // Remove token from localStorage
-  localStorage.removeItem('token');
-  console.log('Logged out successfully');
-  // Optionally, redirect to login page (if using a routing library like react-router)
-  window.location.href = '/signin'; // Redirect to login page
-}
-
-export { login, logout };
+};

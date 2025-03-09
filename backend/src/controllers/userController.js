@@ -49,6 +49,24 @@ const userController = {
     }
   },
 
+  tokenAuth: async (req, res) => {
+    try {
+      const tokenAuthentify = await UserService.tokenAuth(req);
+      
+      if (tokenAuthentify.success) {
+        // If success, send response
+        return res.status(200).json({ id: tokenAuthentify.id });
+      }
+  
+      // If failure, send response
+      return res.status(400).json({ message: tokenAuthentify.message });
+  
+    } catch (error) {
+      console.error("Error authenticating token:", error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+
 
   login: async (req, res) => {
     console.log("login controller called"); // Check if this log is printed
