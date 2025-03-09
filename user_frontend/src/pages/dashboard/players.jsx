@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import {
   Typography,
   Card,
@@ -14,23 +14,31 @@ import {
 } from "@material-tailwind/react";
 import { EllipsisVerticalIcon, ArrowUpIcon } from "@heroicons/react/24/outline";
 
-const playersData = [
-  {
-    name: "John Doe",
-    university: "University of Moratuwa",
-    category: "Batsman",
-    stats: { totalRuns: 1200, ballsFaced: 900, inningsPlayed: 45, wickets: 0, oversBowled: 0, runsConceded: 0 },
-  },
-  {
-    name: "Jane Smith",
-    university: "University of Colombo",
-    category: "All-Rounder",
-    stats: { totalRuns: 800, ballsFaced: 650, inningsPlayed: 40, wickets: 25, oversBowled: 90, runsConceded: 300 },
-  },
-];
 
 export function Players() {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [playersData, setPlayersData] = useState([]);
+
+  
+
+  useEffect(() => {
+    const fetchData = async () => {
+
+      try {
+        const response = await fetch('http://localhost:3000/api/players');
+        const data = await response.json();
+        setPlayersData(data.data);
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setError('Failed to fetch data');
+      }
+
+    };
+  
+    fetchData();
+  }, []);
+
 
   return (
     <div className="mt-12">
@@ -72,29 +80,29 @@ export function Players() {
                 </tr>
               </thead>
               <tbody>
-                {playersData.map(({ name, university, category, stats }, key) => (
-                  <tr key={name}>
+                {playersData.map((player) => (
+                  <tr key={player.Player_ID}>
                     <td className="py-3 px-5 border-b border-blue-gray-50">
                       <Typography variant="small" color="blue-gray" className="font-bold">
-                        {name}
+                        {player.Name}
                       </Typography>
                     </td>
                     <td className="py-3 px-5 border-b border-blue-gray-50">
                       <Typography variant="small" color="blue-gray">
-                        {university}
+                        {player.University}
                       </Typography>
                     </td>
                     <td className="py-3 px-5 border-b border-blue-gray-50">
                       
                       <Typography variant="small" color="blue-gray">
-                        {category}
+                        {player.Category}
                       </Typography>
                     </td>
                     <td className="py-3 px-5 border-b border-blue-gray-50">
-                      <Button size="sm" onClick={() => setSelectedPlayer({ name, ...stats })}>
+                      <Button size="sm" onClick={() => {setSelectedPlayer(player)}}>
                         View
                       </Button>
-                     
+                       
                     </td>
                   </tr>
                 ))}
@@ -109,47 +117,56 @@ export function Players() {
             </Typography>
           </CardHeader>
           <CardBody className="pt-0">
-            {selectedPlayer ? (
-              <div>
-                <table className="w-full text-left text-blue-gray-700">
-                  <tbody>
-                    <tr>
-                      <td className="font-medium text-blue-gray-500">Name:</td>
-                      <td className="text-lg font-medium">{selectedPlayer.name}</td>
-                    </tr>
-                    <tr>
-                      <td className="font-medium text-blue-gray-500">Total Runs:</td>
-                      <td className="text-lg font-medium">{selectedPlayer.totalRuns}</td>
-                    </tr>
-                    <tr>
-                      <td className="font-medium text-blue-gray-500">Balls Faced:</td>
-                      <td className="text-lg font-medium">{selectedPlayer.ballsFaced}</td>
-                    </tr>
-                    <tr>
-                      <td className="font-medium text-blue-gray-500">Innings Played:</td>
-                      <td className="text-lg font-medium">{selectedPlayer.inningsPlayed}</td>
-                    </tr>
-                    <tr>
-                      <td className="font-medium text-blue-gray-500">Wickets:</td>
-                      <td className="text-lg font-medium">{selectedPlayer.wickets}</td>
-                    </tr>
-                    <tr>
-                      <td className="font-medium text-blue-gray-500">Overs Bowled:</td>
-                      <td className="text-lg font-medium">{selectedPlayer.oversBowled}</td>
-                    </tr>
-                    <tr>
-                      <td className="font-medium text-blue-gray-500">Runs Conceded:</td>
-                      <td className="text-lg font-medium">{selectedPlayer.runsConceded}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <Typography variant="small" color="blue-gray">
-                Select a player to view stats.
-              </Typography>
-            )}
-          </CardBody>
+              {selectedPlayer ? (
+                <div>
+                  <table className="w-full text-left text-blue-gray-700">
+                    <tbody>
+                      <tr>
+                        <td className="font-medium text-blue-gray-500">Name:</td>
+                        <td className="text-lg font-medium">{selectedPlayer.Name}</td>
+                      </tr>
+                      <tr>
+                        <td className="font-medium text-blue-gray-500">University:</td>
+                        <td className="text-lg font-medium">{selectedPlayer.University}</td>
+                      </tr>
+                      <tr>
+                        <td className="font-medium text-blue-gray-500">Category:</td>
+                        <td className="text-lg font-medium">{selectedPlayer.Category}</td>
+                      </tr>
+                      <tr>
+                        <td className="font-medium text-blue-gray-500">Total Runs:</td>
+                        <td className="text-lg font-medium">{selectedPlayer.Total_Runs}</td>
+                      </tr>
+                      <tr>
+                        <td className="font-medium text-blue-gray-500">Balls Faced:</td>
+                        <td className="text-lg font-medium">{selectedPlayer.Balls_Faced}</td>
+                      </tr>
+                      <tr>
+                        <td className="font-medium text-blue-gray-500">Innings Played:</td>
+                        <td className="text-lg font-medium">{selectedPlayer.Innings_Played}</td>
+                      </tr>
+                      <tr>
+                        <td className="font-medium text-blue-gray-500">Wickets:</td>
+                        <td className="text-lg font-medium">{selectedPlayer.Wickets}</td>
+                      </tr>
+                      <tr>
+                        <td className="font-medium text-blue-gray-500">Overs Bowled:</td>
+                        <td className="text-lg font-medium">{selectedPlayer.Overs_Bowled}</td>
+                      </tr>
+                      <tr>
+                        <td className="font-medium text-blue-gray-500">Runs Conceded:</td>
+                        <td className="text-lg font-medium">{selectedPlayer.Runs_Conceded}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                    ) : (
+                      <Typography variant="small" color="blue-gray">
+                        Select a player to view stats.
+                      </Typography>
+                    )}
+            </CardBody>
+
         </Card>
       </div>
     </div>
