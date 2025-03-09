@@ -27,6 +27,14 @@ import {
   setOpenSidenav,
 } from "@/context";
 
+const handleLogout = () => {
+  localStorage.removeItem("authToken"); // Remove token from localStorage
+  sessionStorage.removeItem("authToken"); // Optional: Remove from session storage if used
+  document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; // Clear cookies
+
+  navigate("/auth/sign-in"); // Redirect to sign-in page
+};
+
 export function DashboardNavbar() {
   const [controller, dispatch] = useMaterialTailwindController();
   const { fixedNavbar, openSidenav } = controller;
@@ -160,7 +168,7 @@ export function DashboardNavbar() {
             </MenuList>
           </Menu>
           <Link to="/auth/sign-in">
-            <Button
+            <Button onClick={handleLogout}
               variant="text"
               color="blue-gray"
               className="hidden items-center gap-1 px-4 xl:flex normal-case"

@@ -30,17 +30,25 @@ const userController = {
       res.status(500).json({ message: "Error fetching user", error });
     }
   },
-
   createUser: async (req, res) => {
     console.log("createUser controller called"); // Check if this log is printed
     try {
-      const newUserId = await UserService.create(req.body);
-      res.status(201).json({ message: "User created successfully", id: newUserId });
+      const createQuery = await UserService.create(req.body);
+      
+      if (createQuery.success) {
+        // If success, send response
+        return res.status(201).json({ success: true, message: "User created successfully",});
+      }
+
+      // If failure, send response
+      return res.status(400).json({ success: false, message: createQuery.message });
+
     } catch (error) {
       console.error("Error creating user:", error);
-      res.status(500).json({ message: "Error creating user", error });
+      return res.status(500).json({ success: false, message: "Error in creating user" });
     }
   },
+
 
   login: async (req, res) => {
     console.log("login controller called"); // Check if this log is printed
