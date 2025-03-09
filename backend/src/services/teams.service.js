@@ -164,6 +164,23 @@ class TeamService {
       connection.release(); // Release the connection
     }
   }
+
+  async getTotalPoints(userId) {
+    try {
+      const query = `
+        SELECT p.* 
+        FROM players p
+        JOIN ${this.tableName} t ON p.player_id = t.player_id
+        WHERE t.user_id = ?
+      `;
+      const [results] = await this.pool.query(query, [userId]);
+      console.log("Team players fetched successfully.");
+      return results; // Return all players in the user's team
+    } catch (err) {
+      console.error("Error fetching Total team points by user ID:", err.stack);
+      throw new Error("Error fetching team players by user ID: " + err.stack);
+    }
+  }
 }
 
 export default new TeamService();
