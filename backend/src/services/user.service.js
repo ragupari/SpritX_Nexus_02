@@ -121,19 +121,34 @@ class UserService {
 // }
   
 
-  async create(user) {
-    try {
-      const hashedPassword = await bcrypt.hash(user.password, 10);
-      const [result] = await this.pool.query(
-        `INSERT INTO ${this.tableName} (email, password, role, createdAt) VALUES (?, ?, ?, NOW())`,
-        [user.email, hashedPassword, user.role]
-      );
-      return result.insertId;
-    } catch (error) {
-      console.error("Error creating user:", error);
-      throw error;
+async create(user) {
+  try {
+    // Check if the email already exists
+    const [existingUser] = await this.pool.query(
+      `SELECT * FROM ${this.tableName} WHERE email = ?`,
+      [user.email]
+    );
+
+    if (existingUser.length > 0) {
+      return({success: false, message: "Email already in use"})
     }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+
+    // Insert the new user
+    const [result] = await this.pool.query(
+      `INSERT INTO ${this.tableName} (name, email, password_hash, role, cash, count, created_at) VALUES (?, ?, ?, ?, 0, 0, NOW())`,
+      [user.name, user.email, hashedPassword, "user"]
+    );
+
+    return ({success: true, userid:result.id});
+  } catch (error) {
+    console.error("Error creating user:", error);
+    throw error;
   }
+}
+
 
   async update(id, user) {
     try {
@@ -184,23 +199,23 @@ class UserService {
 
         // Check if a user exists
         if (rows.length === 0) {
-            return { success: false, message: "❌ Invalid user credentials!" };
+            return { success: false, message: "Invalid user credentials!" };
         }
 
         const user = rows[0];
         console.log("User found:", user);
 
         // Ensure password is present in the database
-        if (!user.password) {
-            return { success: false, message: "❌ Password not set for this user!" };
+        if (!user.password_hash) {
+            return { success: false, message: "Password not set for this user!" };
         }
 
-        console.log("Stored password hash:", user.password);
+        console.log("Stored password hash:", user.password_hash);
 
         // Compare the entered password with the stored hashed password
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(password, user.password_hash);
         if (!isMatch) {
-            return { success: false, message: "❌ Invalid user credentials!" };
+            return { success: false, message: "Invalid user credentials!" };
         }
 
         // Generate JWT token upon successful authentication
@@ -210,11 +225,11 @@ class UserService {
             { expiresIn: "1h" }
         );
 
-        return { success: true, message: "✅ Login successful!", user, token };
+        return { success: true, message: "Login successful!", user, token };
 
     } catch (error) {
         console.error("Error in checkUser:", error);
-        return { success: false, message: "❌ Server error while checking user!", error };
+        return { success: false, message: "Server error while checking user!", error };
     }
 }
 
