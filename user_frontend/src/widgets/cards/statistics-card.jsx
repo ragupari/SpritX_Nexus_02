@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Card,
   CardBody,
@@ -7,37 +8,26 @@ import {
 } from "@material-tailwind/react";
 import PropTypes from "prop-types";
 
-export function StatisticsCard({ uni, name, price }) {
+export function StatisticsCard({ uni, name, price, onClick }) {
   return (
     <Card className="border border-blue-gray-100 shadow-sm">
       <CardBody className="p-4 text-center">
-        <Typography variant="h4" color="blue-gray">
-          {name}
-        </Typography>
-        <Typography variant="small" className="font-medium text-blue-gray-600">
-          {uni}
-        </Typography>
-        <Typography variant="small" className="font-medium text-begin pt-2 text-green-500 text-md">
-          <i className="bi bi-cash-coin text-green-500"></i> {price} LKR
-        </Typography>
+        <Typography variant="h4" color="blue-gray">{name}</Typography>
+        <Typography variant="small" className="font-medium text-blue-gray-600">{uni}</Typography>
+        <Typography variant="small" className="font-medium text-green-500 pt-2">{price} LKR</Typography>
       </CardBody>
-      {price && (
-        <CardFooter className="border-t text-center border-blue-gray-50 p-4">
-          <Typography className="font-normal text-blue-gray-600">
-            <a href="#"><strong>Add to my team</strong></a>
-          </Typography>
-        </CardFooter>
-      )}
+      <CardFooter className="border-t border-blue-gray-50 p-4 text-center">
+        <Button color="blue-gray" onClick={onClick}>Add to My Team</Button>
+      </CardFooter>
     </Card>
   );
 }
 
 StatisticsCard.propTypes = {
-  price: PropTypes.node.isRequired,
-  name: PropTypes.node.isRequired,
-  uni: PropTypes.node.isRequired,
+  uni: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  price: PropTypes.number.isRequired,
+  onClick: PropTypes.func.isRequired,
 };
-
-StatisticsCard.displayName = "/src/widgets/cards/statistics-card.jsx";
 
 export default StatisticsCard;

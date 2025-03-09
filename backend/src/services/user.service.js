@@ -59,16 +59,41 @@ class UserService {
     }
   }
 
-  async getByEmail(email) {
+  async tokenAuth(req) {
+    const token = req.headers['x-access-token']; // Get token from the header
+  
+    // Check if the token is provided
+    if (!token) {
+      return {
+        success: false,
+        message: 'Token not provided'
+      };
+    }
+  
+    // Return a Promise to handle asynchronous token verification
     try {
-      const [rows] = await this.pool.query(
-        `SELECT * FROM ${this.tableName} WHERE email = ?`,
-        [email]
-      );
-      return rows.length > 0 ? rows[0] : null;
+      const decoded = await new Promise((resolve, reject) => {
+        jwt.verify(token, jwtSecret, (err, decoded) => {
+          if (err) {
+            reject('Failed to authenticate token');
+          } else {
+            resolve(decoded);
+          }
+        });
+      });
+  
+      // If token is valid, return success and the decoded data
+      return {
+        success: true,
+        message: 'Token authenticated',
+        id: decoded.id
+      };
     } catch (error) {
-      console.error("Error getting user by email:", error);
-      throw error;
+      // Handle errors from jwt.verify
+      return {
+        success: false,
+        message: error
+      };
     }
   }
 
@@ -138,7 +163,7 @@ async create(user) {
 
     // Insert the new user
     const [result] = await this.pool.query(
-      `INSERT INTO ${this.tableName} (name, email, password_hash, role, cash, count, created_at) VALUES (?, ?, ?, ?, 0, 0, NOW())`,
+      `INSERT INTO ${this.tableName} (name, email, password_hash, role, cash, count, created_at) VALUES (?, ?, ?, ?, 9000000, 0, NOW())`,
       [user.name, user.email, hashedPassword, "user"]
     );
 
@@ -220,7 +245,7 @@ async create(user) {
 
         // Generate JWT token upon successful authentication
         const token = jwt.sign(
-            { email: user.email, role: user.role },
+            { id:user.id},
             jwtSecret,  // Make sure jwtSecret is properly defined
             { expiresIn: "1h" }
         );

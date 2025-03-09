@@ -1,4 +1,5 @@
 import { BudgetRemaining } from "@/widgets/cards";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -6,82 +7,38 @@ import {
   Typography,
 } from "@material-tailwind/react";
 
-const playersData = [
-  {
-    name: "John Doe",
-    university: "University of Moratuwa",
-    category: "Bowler",
-    amountSpent: "450000" // Changed value to be within 100000-500000
-  },
-  {
-    name: "Jane Smith",
-    university: "University of Colombo",
-    category: "Batsman",
-    amountSpent: "200000"
-  },
-  {
-    name: "Alex Johnson",
-    university: "University of Peradeniya",
-    category: "All-Rounder",
-    amountSpent: "350000"
-  },
-  {
-    name: "Sarah Lee",
-    university: "University of Moratuwa",
-    category: "Batsman",
-    amountSpent: "120000"
-  },
-  {
-    name: "Michael Brown",
-    university: "University of Colombo",
-    category: "Bowler",
-    amountSpent: "475000"
-  },
-  {
-    name: "Chris Green",
-    university: "University of Peradeniya",
-    category: "All-Rounder",
-    amountSpent: "490000"
-  },
-  {
-    name: "Emily White",
-    university: "University of Moratuwa",
-    category: "Bowler",
-    amountSpent: "150000"
-  },
-  {
-    name: "Daniel Black",
-    university: "University of Colombo",
-    category: "Batsman",
-    amountSpent: "460000"
-  },
-  {
-    name: "Sophia Blue",
-    university: "University of Peradeniya",
-    category: "All-Rounder",
-    amountSpent: "200000"
-  },
-  {
-    name: "William Gray",
-    university: "University of Moratuwa",
-    category: "Bowler",
-    amountSpent: "320000"
-  },
-  {
-    name: "Olivia Red",
-    university: "University of Colombo",
-    category: "Batsman",
-    amountSpent: "180000"
-  }
-];
+
 
 export function Budget() {
+  
+  const [playersData, setPlayersData] = useState([]);
+  const [remainingBudget, setRemainingBudget] = useState(9000000);
   const playerCount = playersData.length;
+
+  useEffect(() => {
+    const fetchPlayers = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/teams/17/players');
+        const data = await response.json();
+        setPlayersData(data.data);
+        calculateRemainingBudget(data.data);
+      } catch (error) {
+        console.error('Failed to fetch team players:', error);
+      }
+    };
+
+    fetchPlayers();
+  }, []);
+
+  const calculateRemainingBudget = (players) => {
+    const totalSpent = players.reduce((acc, player) => acc + player.Value_in_Rupees, 0);
+    setRemainingBudget(remainingBudget - totalSpent);
+  };
 
   return (
     <div className="mt-12 mb-8 flex flex-col gap-12">
       <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-2">
-        <BudgetRemaining budget={5000000} /> {/* Convert string to number */}
+        <BudgetRemaining budget={remainingBudget} /> {/* Convert string to number */}
       </div>
 
       <Card>
@@ -111,33 +68,33 @@ export function Budget() {
               </tr>
             </thead>
             <tbody>
-              {playersData.map(({ name, university, category, amountSpent }, key) => {
+              {playersData.map((player) => {
                 const className = `py-3 px-5 ${
-                  key === playersData.length - 1 ? "" : "border-b border-blue-gray-50"
+                  player === playersData.length - 1 ? "" : "border-b border-blue-gray-50"
                 }`;
 
                 return (
-                  <tr key={name}> {/* Name used as key */}
+                  <tr key={player.Player_ID}> {/* Name used as key */}
                     <td className={className}>
                       <div className="flex items-center gap-4">
                         <Typography variant="small" color="blue-gray" className="font-semibold">
-                          {name}
+                          {player.Name}
                         </Typography>
                       </div>
                     </td>
                     <td className={className}>
                       <Typography className="text-xs font-semibold text-blue-gray-600">
-                        {university}
+                        {player.University}
                       </Typography>
                     </td>
                     <td className={className}>
                       <Typography className="text-xs font-semibold text-blue-gray-600">
-                        {category}
+                        {player.Category}
                       </Typography>
                     </td>
                     <td className={className}>
                       <Typography className="text-xs font-semibold text-blue-gray-600">
-                        LKR {amountSpent}
+                        LKR {player.Value_in_Rupees}
                       </Typography>
                     </td>
                   </tr>
