@@ -28,6 +28,7 @@ import {
 } from "@/data";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
 import fetchTournamentStats from "../../data/statistics-cards-data";
+import { LeaderBoard } from './leaderBoard';
 
 export function Home() {
 
@@ -60,6 +61,7 @@ export function Home() {
           />
         ))}
       </div>
+      <LeaderBoard />
       {/* <div className="mb-6 grid grid-cols-1 gap-y-12 gap-x-6 md:grid-cols-2 xl:grid-cols-3">
         {statisticsChartsData.map((props) => (
           <StatisticsChart
