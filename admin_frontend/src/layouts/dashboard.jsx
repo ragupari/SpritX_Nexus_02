@@ -20,11 +20,17 @@ export function Dashboard() {
     localStorage.removeItem("authToken"); // Clear authentication data
     navigate("/sign-in"); // Redirect to sign-in page
   };
-
+  const token = localStorage.getItem("authToken");
+  if (!token) {
+    // If there is no token, redirect to sign-in page
+    navigate("/sign-in");
+    return null; // Prevent rendering dashboard
+  }
+  const filteredRoutes = routes.filter(({ layout }) => layout !== "auth");
   return (
     <div className="min-h-screen bg-blue-gray-50/50">
       <Sidenav
-        routes={routes}
+        routes={filteredRoutes}
         brandImg={
           sidenavType === "dark" ? "/img/logo-ct.png" : "/img/logo-ct-dark.png"
         }
@@ -52,7 +58,7 @@ export function Dashboard() {
           <Cog6ToothIcon className="h-5 w-5" />
         </IconButton>
         <Routes>
-          {routes.map(
+          {filteredRoutes.map(
             ({ layout, pages }) =>
               layout === "dashboard" &&
               pages.map(({ path, element }) => (
