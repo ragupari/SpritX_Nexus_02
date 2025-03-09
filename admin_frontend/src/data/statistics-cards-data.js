@@ -41,7 +41,7 @@ const fetchTournamentStats = async () => {
     return [
       {
         color: "gray",
-        icon: BanknotesIcon,
+        icon: ChartBarIcon,
         title: "Overall Runs",
         value: totalRuns.toString(),
         footer: {
@@ -52,7 +52,7 @@ const fetchTournamentStats = async () => {
       },
       {
         color: "gray",
-        icon: UsersIcon,
+        icon: ChartBarIcon,
         title: "Overall Wickets",
         value: totalWickets.toString(),
         footer: {
@@ -63,7 +63,7 @@ const fetchTournamentStats = async () => {
       },
       {
         color: "gray",
-        icon: UserPlusIcon,
+        icon: UsersIcon,
         title: "Highest Run Scorer",
         value: `${topRunScorer.Name} (${topRunScorer.Runs} runs)`,
         footer: {
@@ -74,7 +74,7 @@ const fetchTournamentStats = async () => {
       },
       {
         color: "gray",
-        icon: ChartBarIcon,
+        icon: UsersIcon,
         title: "Highest Wicket Taker",
         value: `${topWicketTaker.Name} (${topWicketTaker.Wickets} wickets)`,
         footer: {

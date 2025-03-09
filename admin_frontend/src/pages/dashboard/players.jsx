@@ -65,7 +65,7 @@ export function Players() {
 
 
     fetchPlayers(); // Call the fetch function on mount
-  }, []); // Empty dependency array ensures this runs only once when the component mounts
+  }, [players]); // Empty dependency array ensures this runs only once when the component mounts
 
   const handleCreatePlayer = async (newPlayer) => {
     try {

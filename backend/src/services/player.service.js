@@ -47,7 +47,7 @@ class PlayerService {
             (playerData.Wickets > 0 ? (500.0 / Bowling_Strike_Rate) : 0) + 
             (playerData.Overs_Bowled > 0 ? (140.0 / Economy_Rate) : 0);
 
-        const Value_in_Rupees = Math.round((((9 * Player_Points) + 100) * 1000 / 50000) * 50000);
+        const Value_in_Rupees = Math.round(((9 * Player_Points) + 100) * 1000 / 50000) * 50000;
 
         // SQL Query
         const query = `
@@ -98,7 +98,7 @@ class PlayerService {
                 (playerData.Wickets > 0 && Bowling_Strike_Rate ? (500.0 / Bowling_Strike_Rate) : 0) + 
                 (playerData.Overs_Bowled > 0 && Economy_Rate ? (140.0 / Economy_Rate) : 0);
     
-            const Value_in_Rupees = (Math.round((((9 * Player_Points) + 100) * 1000) / 50000) * 50000);
+            const Value_in_Rupees = Math.round((((9 * Player_Points) + 100) * 1000) / 50000) * 50000;
     
             // SQL Query to update player details along with derived values
             const query = `
