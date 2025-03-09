@@ -15,7 +15,13 @@ import { useNavigate } from "react-router-dom";
 // import { FiEye, FiEdit, FiTrash, FiPlus } from "react-icons/fi";
 import {
   EyeIcon,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon
 } from "@heroicons/react/24/solid";
+import CreatePlayer from "../../widgets/pop-up/createPlayer"; // Adjust the path if needed
+import UpdatePlayer from "../../widgets/pop-up/updatePlayer";
+import ViewPlayer from "../../widgets/pop-up/viewPlayer";
 // import PlayerService from "../../services/player.service"; // Update this to match your player service
 // import { formatDateAndTime, calculateTimeRemaining } from "../../utils/date"; // Adjust these if necessary
 
@@ -27,6 +33,11 @@ export function Players() {
   const [isLoading, setIsLoading] = useState(true);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [playerToDelete, setPlayerToDelete] = useState(null);
+  const [isCreatePlayerOpen, setIsCreatePlayerOpen] = useState(false);
+  const [playerToEdit, setPlayerToEdit] = useState(null);
+  const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
+  const [playerToView, setPlayerToView] = useState(null); // State for the player to view
+  const [isViewPopupOpen, setIsViewPopupOpen] = useState(false); // State to control the view popup
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,9 +47,15 @@ export function Players() {
         if (!response.ok) {
           throw new Error("Failed to fetch players");
         }
-        const data = await response.json(); // Parse the JSON response
-        setPlayers(data);
-        setFilteredPlayers(data);
+        const result = await response.json(); // Parse the JSON response
+        // console.log(result.data);
+        if (Array.isArray(result.data)) { // Access the players array within the 'data' property
+          setPlayers(result.data); // Set the players
+          setFilteredPlayers(result.data); // Set filtered players
+        } else {
+          console.error("Expected an array, but got:", result.data);
+          setFilteredPlayers([]); // Set to an empty array in case of invalid data
+        }
         setIsLoading(false);
       } catch (error) {
         console.error("Failed to fetch players:", error);
@@ -46,15 +63,66 @@ export function Players() {
       }
     };
 
+
     fetchPlayers(); // Call the fetch function on mount
   }, []); // Empty dependency array ensures this runs only once when the component mounts
 
-  const handleViewClick = (playerId) => {
-    navigate(`../view-player/${playerId}`);
+  const handleCreatePlayer = async (newPlayer) => {
+    try {
+      const response = await fetch("http://localhost:3000/api/players", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newPlayer),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create player");
+      }
+
+      const createdPlayer = await response.json();
+
+      setPlayers((prevPlayers) => [
+        createdPlayer, // Add the new player to the list
+        ...(prevPlayers || []),
+      ]);
+
+      setFilteredPlayers((prevPlayers) => [
+        createdPlayer,
+        ...(prevPlayers || []),
+      ]);
+    } catch (error) {
+      console.error("Failed to create player:", error);
+      alert("An error occurred while creating the player. Please try again.");
+    }
   };
 
-  const handleEditClick = (playerId) => {
-    navigate(`../edit-player/${playerId}`);
+
+  const handleViewClick = (player) => {
+    setPlayerToView(player); // Set the player to view
+    setIsViewPopupOpen(true); // Open the view player popup
+  };
+
+  const closeViewPopup = () => {
+    setIsViewPopupOpen(false); // Close the view player popup
+    setPlayerToView(null); // Clear the player data
+  };
+  
+
+  const handleEditClick = (player) => {
+    console.log("on edit click",player);
+    setPlayerToEdit(player);
+    setIsEditPopupOpen(true);
+    // setCategoryToDelete(category);
+  };
+  const handleUpdatePlayer = (updatedPlayer) => {
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((player) =>
+        player.playerId === updatedPlayer.playerId ? updatedPlayer : player,
+      ),
+    );
+    setIsEditPopupOpen(false);
   };
 
   const handleDeleteClick = (playerId) => {
@@ -64,47 +132,62 @@ export function Players() {
 
   const confirmDelete = async () => {
     try {
-      await PlayerService.delete(playerToDelete);
+      const response = await fetch(`http://localhost:3000/api/players/${playerToDelete}`, {
+        method: "DELETE", // HTTP DELETE method
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete player");
+      }
+  
+      // Remove the deleted player from the state
       setPlayers((prevPlayers) =>
-        prevPlayers.filter((player) => player.id !== playerToDelete)
+        prevPlayers.filter((player) => player.Player_ID !== playerToDelete)
       );
+  
       setFilteredPlayers((prevPlayers) =>
-        prevPlayers.filter((player) => player.id !== playerToDelete)
+        prevPlayers.filter((player) => player.Player_ID !== playerToDelete)
       );
+  
       setShowDeletePopup(false);
     } catch (error) {
       console.error("Failed to delete player:", error);
+      alert("An error occurred while deleting the player. Please try again.");
     }
-  };
+  };  
 
   const cancelDelete = () => {
     setPlayerToDelete(null);
     setShowDeletePopup(false);
   };
 
-  const filterByPlayerStatus = async (status) => {
+  const filterByPlayerCategories = async (category) => {
     setIsLoading(true);
     try {
-      if (status === "all") {
+      if (category === "all") {
         setFilteredPlayers(players);
       } else {
-        const statusFilteredPlayers = players.filter((player) => player.status === status);
-        setFilteredPlayers(statusFilteredPlayers);
+        // Corrected to match the exact casing from the object structure
+        const categoryFilteredPlayers = players.filter((player) => player.Category === category);
+        setFilteredPlayers(categoryFilteredPlayers);
       }
     } catch (error) {
-      console.error("Failed to fetch players:", error);
-      alert("Failed to fetch players");
+      console.error("Failed to filter players:", error);
+      alert("Failed to filter players");
     } finally {
       setIsLoading(false);
     }
   };
 
+
   // Pagination Logic
   const indexOfLastPlayer = currentPage * playersPerPage;
+  console.log("indexOfLastPlayer", indexOfLastPlayer);
   const indexOfFirstPlayer = indexOfLastPlayer - playersPerPage;
+  console.log("indexOfFirstPlayer", indexOfFirstPlayer);
   const currentPlayers = filteredPlayers.slice(indexOfFirstPlayer, indexOfLastPlayer);
 
-  const totalPages = Math.ceil(players.length / playersPerPage);
+  const totalPages = Math.ceil(filteredPlayers.length / playersPerPage);
 
   const next = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
@@ -129,13 +212,17 @@ export function Players() {
           <IconButton
             size="sm"
             variant="text"
-            onClick={() => navigate("../create-player")}
+            onClick={() => setIsCreatePlayerOpen(true)}
             className="bg-white text-black rounded-md p-2 ml-7 hover:bg-gray-400 active:bg-gray-500"
           >
-            <EyeIcon className="h-6 w-6" />
+            <PlusIcon className="h-6 w-6" />
           </IconButton>
         </CardHeader>
-
+        <CreatePlayer
+          isOpen={isCreatePlayerOpen}
+          onClose={() => setIsCreatePlayerOpen(false)}
+          onSave={(newPlayer) => handleCreatePlayer(newPlayer)}
+        />
         <div className="flex items-center justify-between gap-4 px-6 max-w-md">
           <div
             className={`relative z-10 flex-grow`}
@@ -147,7 +234,7 @@ export function Players() {
             <Select
               label="Filter by Player Category"
               onChange={(value) => {
-                filterByPlayerStatus(value);
+                filterByPlayerCategories(value);
               }}
               className="bg-white text-gray-700 border border-gray-300 rounded-md "
             >
@@ -155,19 +242,19 @@ export function Players() {
                 All
               </Option>
               <Option
-                value="batsman"
+                value="Batsman"
                 className="bg-white text-gray-700 hover:bg-gray-100"
               >
                 Batsman
               </Option>
               <Option
-                value="baller"
+                value="Bowler"
                 className="bg-white text-gray-700 hover:bg-gray-100"
               >
-                Baller
+                Bowler
               </Option>
               <Option
-                value="all-rounder"
+                value="All-Rounder"
                 className="bg-white text-gray-700 hover:bg-gray-100"
               >
                 All-Rounder
@@ -235,78 +322,83 @@ export function Players() {
               <tbody>
                 {isLoading
                   ? Array.from({ length: playersPerPage }).map((_, index) => (
-                      <tr
-                        key={index}
-                        className="border-b border-blue-gray-50 animate-pulse"
-                      >
-                        <td className="py-3 px-5">
-                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                        </td>
-                        <td className="py-3 px-5">
-                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                        </td>
-                        <td className="py-3 px-5">
-                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                        </td>
-                        <td className="py-3 px-5">
-                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                        </td>
-                      </tr>
-                    ))
+                    <tr
+                      key={index}
+                      className="border-b border-blue-gray-50 animate-pulse"
+                    >
+                      <td className="py-3 px-5">
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      </td>
+                      <td className="py-3 px-5">
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                      </td>
+                      <td className="py-3 px-5">
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                      </td>
+                      <td className="py-3 px-5">
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                      </td>
+                    </tr>
+                  ))
                   : currentPlayers.length > 0 ? currentPlayers.map((player, key) => (
-                      <tr
-                        key={player.id}
-                        className={`${key === currentPlayers.length - 1
-                            ? ""
-                            : "border-b border-blue-gray-50 text-xs"
-                          }`}
-                      >
-                        <td className="py-3 px-5">
-                          <Typography
-                            variant="small"
-                            className="font-semibold text-blue-gray-600"
+                    <tr
+                      key={player.id}
+                      className={`${key === currentPlayers.length - 1
+                        ? ""
+                        : "border-b border-blue-gray-50 text-xs"
+                        }`}
+                    >
+                      <td className="py-3 px-5">
+                        <Typography
+                          variant="small"
+                          className="font-semibold text-blue-gray-600"
+                        >
+                          {player.Name}
+                        </Typography>
+                      </td>
+                      <td className="py-3 px-5">
+                        <Typography
+                          variant="small"
+                          className="font-semibold text-blue-gray-600"
+                        >
+                          {player.University}
+                        </Typography>
+                      </td>
+                      <td className="py-3 px-5">
+                        <Typography
+                          className={`text-sm ${player.Category === "Batsman" ? "font-semibold text-green-500" :
+                            player.Category === "Bowler" ? "font-semibold text-yellow-700" :
+                              player.Category === "All-Rounder" ? "font-semibold text-red-500" : "text-blue-gray-700"}`}
+                        >
+                          {player.Category === "Batsman" ? "Batsman" :
+                            player.Category === "Bowler" ? "Bowler" :
+                              player.Category === "All-Rounder" ? "All-Rounder" : player.Category}
+                        </Typography>
+                      </td>
+                      <td className="py-3 px-5">
+                        <div className="flex items-center gap-4">
+                        <IconButton onClick={() => handleViewClick(player)} size="sm" variant="text">
+                            <EyeIcon className="h-5 w-5 text-gray-600" />
+                          </IconButton>
+                          <IconButton
+                              onClick={() => handleEditClick(player)}
+                              size="sm"
+                              variant="text"
+                            >
+                              <PencilIcon className="h-5 w-5 text-gray-600" />
+                            </IconButton>
+                          <IconButton
+                            onClick={() => handleDeleteClick(player.Player_ID
+                            )}
+                            size="sm"
+                            variant="text"
                           >
-                            {player.name}
-                          </Typography>
-                        </td>
-                        <td className="py-3 px-5">
-                          <Typography
-                            className={`text-sm ${player.category === "batsman" ? "font-semibold text-green-500" :
-                              player.category === "baller" ? "font-semibold text-yellow-700" :
-                                player.category === "all-rounder" ? "font-semibold text-red-500" : "text-blue-gray-700"}`}
-                          >
-                            {player.category === "batsman" ? "Batsman" :
-                              player.category === "baller" ? "Baller" :
-                                player.category === "all-rounder" ? "All-Rounder" : player.category}
-                          </Typography>
-                        </td>
-                        <td className="py-3 px-5">
-                          <div className="flex items-center gap-4">
-                            <IconButton
-                              onClick={() => handleViewClick(player.id)}
-                              size="sm"
-                              variant="text"
-                            >
-                              <EyeIcon className="h-5 w-5 text-gray-600" />
-                            </IconButton>
-                            <IconButton
-                              onClick={() => handleEditClick(player.id)}
-                              size="sm"
-                              variant="text"
-                            >
-                              <EyeIcon className="h-5 w-5 text-gray-600" />
-                            </IconButton>
-                            <IconButton
-                              onClick={() => handleDeleteClick(player.id)}
-                              size="sm"
-                              variant="text"
-                            >
-                              <EyeIcon className="h-5 w-5 text-gray-600" />
-                            </IconButton>
-                          </div>
-                        </td>
-                      </tr>
-                    )) : <div className="w-full text-center mt-6">No Players to show</div>
+                            <TrashIcon className="h-5 w-5 text-gray-600" />
+                          </IconButton>
+                        </div>
+                      </td>
+                    </tr>
+                  )) : <div className="w-full text-center mt-6">No Players to show</div>
                 }
               </tbody>
             </table>
@@ -373,6 +465,13 @@ export function Players() {
           </div>
         )}
       </Card>
+      <UpdatePlayer
+        isOpen={isEditPopupOpen}
+        onClose={() => setIsEditPopupOpen(false)}
+        player={playerToEdit}
+        onSave={handleUpdatePlayer}
+      />
+      <ViewPlayer isOpen={isViewPopupOpen} onClose={closeViewPopup} player={playerToView} />
     </div>
   );
 }

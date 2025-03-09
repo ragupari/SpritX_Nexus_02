@@ -37,7 +37,7 @@ export function SignIn() {
 
       if (response.ok && data.token) {
         localStorage.setItem("authToken", data.token);
-        navigate("/dashboard");
+        navigate("/dashboard/home");
       } else {
         setError(data.message || "Invalid credentials");
       }
