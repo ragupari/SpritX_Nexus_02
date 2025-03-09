@@ -178,7 +178,7 @@ class UserService {
 
         // Fetch user by email and role
         const [rows] = await this.pool.query(
-            `SELECT * FROM ${this.tableName} WHERE email = ?'`,
+            `SELECT * FROM ${this.tableName} WHERE email = ?`,
             [email]
         );
 

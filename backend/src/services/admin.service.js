@@ -1,12 +1,15 @@
 import pool from "../configs/mysql.js";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 dotenv.config();
+const jwtSecret = process.env.JWT_SECRET;
 
 class AdminService {
     constructor() {
         this.pool = pool;
-        this.tableName = "admin";
+        this.tableName = "admins";
     }
 
 
@@ -17,7 +20,7 @@ async checkHost(email, password) {
 
         // Fetch admin user by email and role
         const [rows] = await this.pool.query(
-            `SELECT * FROM ${this.tableName} WHERE email = ?'`,
+            `SELECT * FROM ${this.tableName} WHERE email = ?`,
             [email]
         );
 
@@ -30,14 +33,14 @@ async checkHost(email, password) {
         console.log("Admin found:", admin);
 
         // Ensure password is present in the database
-        if (!admin.password_hash) {
+        if (!admin.password) {
             return { success: false, message: "Password not set for this admin" };
         }
 
-        console.log("Stored password hash:", admin.password_hash);
+        console.log("Stored password hash:", admin.password);
 
         // Compare the entered password with the stored hashed password
-        const isMatch = await bcrypt.compare(password, admin.password_hash);
+        const isMatch = await bcrypt.compare(password, admin.password);
         if (!isMatch) {
             return { success: false, message: "Incorrect password" };
         }
