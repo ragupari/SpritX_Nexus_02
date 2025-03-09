@@ -1,13 +1,17 @@
 import {
-  HomeIcon,
   UserCircleIcon,
-  TableCellsIcon,
   InformationCircleIcon,
   ServerStackIcon,
   RectangleStackIcon,
+  CursorArrowRaysIcon,
+  TrophyIcon,
+  UserGroupIcon,
+  UsersIcon,
+  CurrencyDollarIcon
 } from "@heroicons/react/24/solid";
-import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
+import { Home, Profile, Players, Team, SelectYourTeam, Notifications, LeaderBoard, Budget } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
+
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -16,24 +20,44 @@ const icon = {
 export const routes = [
   {
     layout: "dashboard",
-    pages: [
+    pages: [   
       {
-        icon: <HomeIcon {...icon} />,
-        name: "dashboard",
-        path: "/home",
-        element: <Home />,
+        icon: <UsersIcon {...icon} />,
+        name: "team",
+        path: "/team",
+        element: <Team />,
+      },
+
+      {
+        icon: <UserGroupIcon {...icon} />,
+        name: "players",
+        path: "/players",
+        element: <Players />,
+      },
+      {
+        icon: <CursorArrowRaysIcon {...icon} />,
+        name: "Select Your Team",
+        path: "/selectyourteam",
+        element: <SelectYourTeam />,
+      },
+
+      {
+        icon: <TrophyIcon {...icon} />,
+        name: "leaderboard",
+        path: "/leaderboard",
+        element: <LeaderBoard />,
+      },
+      {
+        icon: <CurrencyDollarIcon {...icon} />,
+        name: "budget",
+        path: "/budget",
+        element: <Budget />,
       },
       {
         icon: <UserCircleIcon {...icon} />,
         name: "profile",
         path: "/profile",
         element: <Profile />,
-      },
-      {
-        icon: <TableCellsIcon {...icon} />,
-        name: "tables",
-        path: "/tables",
-        element: <Tables />,
       },
       {
         icon: <InformationCircleIcon {...icon} />,
