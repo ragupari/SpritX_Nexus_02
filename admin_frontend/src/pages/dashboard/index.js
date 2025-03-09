@@ -3,3 +3,4 @@ export * from "@/pages/dashboard/profile";
 export * from "@/pages/dashboard/players";
 export * from "@/pages/dashboard/notifications";
 export * from "@/pages/dashboard/userList";
+export * from "@/pages/dashboard/leaderBoard";

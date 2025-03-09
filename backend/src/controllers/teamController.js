@@ -42,6 +42,15 @@ const addPlayerToTeam = async (req, res) => {
       res.status(500).json({ error: error.message });
     }
   };
+
+  const getAllLeaderboardTeams = async (req, res) => {
+    try {
+      const teams = await TeamService.getAllLeaderboardTeams();
+      res.status(200).json({ data: teams });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
   
 
 // Export the controller methods
@@ -50,4 +59,5 @@ export const teamController = {
   getPlayersByTeamId,
   addPlayerToTeam,
   removePlayerFromTeam,
+  getAllLeaderboardTeams,
 };

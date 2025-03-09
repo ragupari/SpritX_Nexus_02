@@ -31,26 +31,53 @@ export function ViewPlayer({ isOpen, onClose, player }) {
           </Typography>
         </CardHeader>
         <CardBody className="flex flex-col gap-4">
-          <div className="flex justify-between">
-            <Typography variant="body1">Player Name:</Typography>
-            <Typography variant="body1">{renderValue(playerData.Name)}</Typography>
-          </div>
-          <div className="flex justify-between">
-            <Typography variant="body1">University:</Typography>
-            <Typography variant="body1">{renderValue(playerData.University)}</Typography>
-          </div>
-          <div className="flex justify-between">
-            <Typography variant="body1">Category:</Typography>
-            <Typography variant="body1">{renderValue(playerData.Category)}</Typography>
-          </div>
-
-          {["Total_Runs", "Balls_Faced", "Innings_Played", "Wickets", "Overs_Bowled", "Runs_Conceded"].map((field) => (
-            <div key={field} className="flex justify-between">
-              <Typography variant="body1">{field.replace("_", " ")}</Typography>
-              <Typography variant="body1">{renderValue(playerData[field])}</Typography>
+          {/* Basic Player Info */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Typography variant="body1">Player Name:</Typography>
+              <Typography variant="body1" className="font-semibold">
+                {renderValue(playerData.Name)}
+              </Typography>
             </div>
-          ))}
+            <div>
+              <Typography variant="body1">University:</Typography>
+              <Typography variant="body1" className="font-semibold">
+                {renderValue(playerData.University)}
+              </Typography>
+            </div>
+            <div>
+              <Typography variant="body1">Category:</Typography>
+              <Typography variant="body1" className="font-semibold">
+                {renderValue(playerData.Category)}
+              </Typography>
+            </div>
+          </div>
 
+          {/* First Row: Primary Stats */}
+          <div className="grid grid-cols-2 gap-4 border-t pt-2">
+            {["Total_Runs", "Balls_Faced", "Innings_Played", "Wickets", "Overs_Bowled", "Runs_Conceded"].map((field) => (
+              <div key={field}>
+                <Typography variant="body1">{field.replace(/_/g, " ")}</Typography>
+                <Typography variant="body1" className="font-semibold">
+                  {renderValue(playerData[field])}
+                </Typography>
+              </div>
+            ))}
+          </div>
+
+          {/* Second Row: Additional Stats */}
+          <div className="grid grid-cols-2 gap-4 border-t pt-2">
+            {["Batting_Strike_Rate", "Batting_Average", "Bowling_Strike_Rate", "Economy_Rate", "Player_Points", "Value_in_Rupees"].map((field) => (
+              <div key={field}>
+                <Typography variant="body1">{field.replace(/_/g, " ")}</Typography>
+                <Typography variant="body1" className="font-semibold">
+                  {renderValue(playerData[field])}
+                </Typography>
+              </div>
+            ))}
+          </div>
+
+          {/* Close Button */}
           <div className="flex justify-end gap-4">
             <Button color="gray" onClick={onClose}>
               Close

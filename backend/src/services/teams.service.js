@@ -70,6 +70,9 @@ class TeamService {
       if (userCash < playerValue) {
         throw new Error("Insufficient points to add this player.");
       }
+      if (userCount >= 11) {
+        throw new Error("Team limit reached.");
+      }
   
       // Step 4: Deduct the player's points from the user's points
       const updatedUserCash = userCash - playerValue;
@@ -179,6 +182,27 @@ class TeamService {
     } catch (err) {
       console.error("Error fetching Total team points by user ID:", err.stack);
       throw new Error("Error fetching team players by user ID: " + err.stack);
+    }
+  }
+  async getAllLeaderboardTeams() {
+    try {
+      // Fetch users who have exactly 11 players in their team
+      const query = `
+        SELECT u.id AS user_id, u.name AS user_name, SUM(p.Value_in_Rupees) AS total_points
+        FROM users u
+        JOIN ${this.tableName} t ON u.id = t.user_id
+        JOIN players p ON t.player_id = p.Player_ID
+        WHERE u.Count = 11
+        GROUP BY u.id, u.name
+        ORDER BY total_points DESC
+      `;
+      
+      const [results] = await this.pool.query(query);
+      console.log("Leaderboard teams fetched successfully.");
+      return results;
+    } catch (err) {
+      console.error("Error fetching leaderboard teams:", err.stack);
+      throw new Error("Error fetching leaderboard teams: " + err.stack);
     }
   }
 }
