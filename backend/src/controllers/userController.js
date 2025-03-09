@@ -1,5 +1,6 @@
 // controllers/userController.js
 import UserService from "../services/user.service.js"; // Import the service
+import AdminService from "../services/admin.service.js";
 
 const userController = {
   getAllUsers: async (req, res) => {
@@ -46,7 +47,7 @@ const userController = {
     try {
       const { email, password, role } = req.body;
       const result = role === "admin" 
-        ? await UserService.checkHost(email, password) 
+        ? await AdminService.checkHost(email, password) 
         : await UserService.checkUser(email, password);
 
       if (result.success) {
